@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Data Generator</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Geist:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0d0d0f;
+            --bg2: #141416;
+            --bg3: #1c1c1f;
+            --bg4: #242428;
+            --border: #2a2a2e;
+            --border2: #363639;
+            --text: #e8e8ea;
+            --text2: #8a8a90;
+            --text3: #55555c;
+            --accent: #6366f1;
+            --accent2: #4f52d9;
+            --accent-glow: rgba(99, 102, 241, 0.15);
+            --accent-border: rgba(99, 102, 241, 0.35);
+            --green: #34d399;
+            --green-bg: rgba(52, 211, 153, 0.08);
+            --red: #f87171;
+            --red-bg: rgba(248, 113, 113, 0.08);
+            --amber: #fbbf24;
+            --r: 8px;
+            --r2: 12px;
+        }
+
+        [data-theme="light"] {
+            --bg: #f5f5f7;
+            --bg2: #ffffff;
+            --bg3: #f3f4f6;
+            --bg4: #e5e7eb;
+
+            --border: #e2e8f0;
+            --border2: #cbd5e1;
+
+            --text: #111827;
+            --text2: #4b5563;
+            --text3: #9ca3af;
+
+            --accent: #4f46e5;
+            --accent2: #4338ca;
+
+            --accent-glow: rgba(79, 70, 229, 0.08);
+            --accent-border: rgba(79, 70, 229, 0.2);
+
+            --green: #059669;
+            --green-bg: rgba(5, 150, 105, 0.08);
+
+            --red: #dc2626;
+            --red-bg: rgba(220, 38, 38, 0.08);
+
+            --amber: #d97706;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Geist', sans-serif;
+            font-size: 13px;
+            line-height: 1.5;
+            min-height: 100vh;
+        }
+
+        /* ── Layout ── */
+        .layout {
+            display: grid;
+            grid-template-columns: 220px 1fr 340px;
+            grid-template-rows: 52px 1fr;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ── Topbar ── */
+        .topbar {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 0 20px;
+            background: var(--bg2);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .logo-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
+        }
+
+        .topbar-sep {
+            flex: 1;
+        }
+
+        .top-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: var(--r);
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--border2);
+            background: var(--bg3);
+            color: var(--text2);
+            transition: all .15s;
+            font-family: 'Geist', sans-serif;
+        }
+
+        .top-btn:hover {
+            color: var(--text);
+            border-color: var(--border2);
+            background: var(--bg4);
+        }
+
+        .top-btn.primary {
+            background: var(--accent);
+            border-color: transparent;
+            color: #fff;
+        }
+
+        .top-btn.primary:hover {
+            background: var(--accent2);
+        }
+
+        .copy-success {
+            display: none;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: var(--green);
+            font-weight: 500;
+        }
+
+        /* ── Sidebar ── */
+        .sidebar {
+            background: var(--bg2);
+            border-right: 1px solid var(--border);
+            overflow-y: auto;
+            padding: 16px 12px;
+        }
+
+        .sidebar::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 2px;
+        }
+
+        .nav-group {
+            margin-bottom: 20px;
+        }
+
+        .nav-label {
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            color: var(--text3);
+            padding: 0 8px;
+            margin-bottom: 4px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 8px;
+            border-radius: var(--r);
+            cursor: pointer;
+            color: var(--text2);
+            font-size: 12px;
+            font-weight: 500;
+            transition: all .12s;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--bg3);
+            color: var(--text);
+        }
+
+        .nav-item.active {
+            background: var(--accent-glow);
+            color: #a5b4fc;
+            border-color: var(--accent-border);
+        }
+
+        .nav-icon {
+            font-size: 14px;
+            opacity: .7;
+        }
+
+        /* ── Main content ── */
+        .main {
+            overflow-y: auto;
+            padding: 24px;
+            background: var(--bg);
+        }
+
+        .main::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .main::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .main::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        /* ── Section ── */
+        .section {
+            background: var(--bg2);
+            border: 1px solid var(--border);
+            border-radius: var(--r2);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .section-head {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 18px;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .08em;
+            text-transform: uppercase;
+            color: var(--text3);
+        }
+
+        .section-line {
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* ── Fields ── */
+        .field {
+            margin-bottom: 14px;
+        }
+
+        .field:last-child {
+            margin-bottom: 0;
+        }
+
+        .field label {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text2);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
+        }
+
+        .field label svg {
+            width: 12px;
+            height: 12px;
+            opacity: .5;
+        }
+
+        input[type=text],
+        select,
+        textarea {
+            width: 100%;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 8px 11px;
+            color: var(--text);
+            font-family: 'Geist', sans-serif;
+            font-size: 12.5px;
+            outline: none;
+            transition: border .15s, background .15s;
+        }
+
+        input[type=text]:focus,
+        select:focus,
+        textarea:focus {
+            border-color: var(--accent-border);
+            background: var(--bg4);
+        }
+
+        input::placeholder {
+            color: var(--text3);
+        }
+
+        select {
+            cursor: pointer;
+        }
+
+        select option {
+            background: var(--bg3);
+        }
+
+        .row2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .row3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        /* ── Tags ── */
+        .tag-input-row {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tag-input-row input {
+            flex: 1;
+        }
+
+        .tag-add-btn {
+            padding: 0 14px;
+            border: 1px solid var(--border2);
+            border-radius: var(--r);
+            background: var(--bg3);
+            color: var(--text2);
+            font-size: 12px;
+            font-family: 'Geist', sans-serif;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all .12s;
+        }
+
+        .tag-add-btn:hover {
+            background: var(--bg4);
+            color: var(--text);
+        }
+
+        .tags-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 8px;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent-border);
+            border-radius: 20px;
+            font-size: 11px;
+            color: #a5b4fc;
+            font-weight: 500;
+        }
+
+        .tag-rm {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #a5b4fc;
+            font-size: 14px;
+            line-height: 1;
+            opacity: .5;
+            padding: 0;
+            transition: opacity .1s;
+        }
+
+        .tag-rm:hover {
+            opacity: 1;
+        }
+
+        /* ── Markdown editor ── */
+        .md-wrap {
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            overflow: hidden;
+            transition: border .15s;
+        }
+
+        .md-wrap:focus-within {
+            border-color: var(--accent-border);
+        }
+
+        .md-bar {
+            display: flex;
+            align-items: center;
+            gap: 1px;
+            padding: 6px 8px;
+            background: var(--bg3);
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+        }
+
+        .md-btn {
+            border: none;
+            background: none;
+            cursor: pointer;
+            padding: 4px 7px;
+            border-radius: 5px;
+            font-size: 11.5px;
+            color: var(--text2);
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 500;
+            transition: all .1s;
+            white-space: nowrap;
+            line-height: 1.2;
+        }
+
+        .md-btn:hover {
+            background: var(--bg4);
+            color: var(--text);
+        }
+
+        .md-sep {
+            width: 1px;
+            height: 14px;
+            background: var(--border);
+            margin: 0 3px;
+            flex-shrink: 0;
+        }
+
+        .md-wrap textarea {
+            border: none;
+            border-radius: 0;
+            background: var(--bg2);
+            min-height: 120px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            line-height: 1.7;
+            resize: vertical;
+        }
+
+        .md-wrap textarea:focus {
+            border: none;
+            background: var(--bg2);
+        }
+
+        /* ── List rows ── */
+        .list-header {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 6px;
+            padding: 0 2px;
+        }
+
+        .link-grid {
+            grid-template-columns: 130px 1fr 1fr 34px;
+        }
+
+        .author-grid {
+            grid-template-columns: 1fr 1fr 1fr 1fr 34px;
+        }
+
+        .col-label {
+            font-size: 10px;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: .07em;
+            font-weight: 500;
+        }
+
+        .link-row {
+            display: grid;
+            grid-template-columns: 130px 1fr 1fr 34px;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .author-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 34px;
+            gap: 8px;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .rm-btn {
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            background: transparent;
+            color: var(--text3);
+            cursor: pointer;
+            font-size: 16px;
+            transition: all .12s;
+        }
+
+        .rm-btn:hover {
+            border-color: rgba(248, 113, 113, .4);
+            color: var(--red);
+            background: var(--red-bg);
+        }
+
+        .add-row-btn {
+            width: 100%;
+            margin-top: 8px;
+            padding: 8px;
+            font-size: 12px;
+            color: var(--text3);
+            border: 1px dashed var(--border2);
+            border-radius: var(--r);
+            background: transparent;
+            cursor: pointer;
+            transition: all .15s;
+            font-family: 'Geist', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .add-row-btn:hover {
+            border-color: var(--accent-border);
+            color: #a5b4fc;
+            background: var(--accent-glow);
+        }
+
+        /* ── Right panel ── */
+        .right-panel {
+            background: var(--bg2);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .right-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .right-tab {
+            flex: 1;
+            padding: 10px 8px;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text3);
+            cursor: pointer;
+            border: none;
+            background: none;
+            border-bottom: 2px solid transparent;
+            transition: all .12s;
+            font-family: 'Geist', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: .07em;
+        }
+
+        .right-tab:hover {
+            color: var(--text2);
+        }
+
+        .right-tab.active {
+            color: #a5b4fc;
+            border-bottom-color: var(--accent);
+        }
+
+        .right-content {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .right-content::-webkit-scrollbar {
+            width: 3px;
+        }
+
+        .right-content::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        /* ── Preview ── */
+        .prev-card {
+            margin: 16px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--r2);
+            overflow: hidden;
+        }
+
+        .prev-thumb {
+            height: 150px;
+            background: var(--bg4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .prev-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .prev-thumb-ph {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text3);
+            font-size: 11px;
+        }
+
+        .prev-thumb-ph svg {
+            width: 28px;
+            height: 28px;
+            opacity: .2;
+        }
+
+        .prev-body {
+            padding: 14px;
+        }
+
+        .prev-cat {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: var(--text3);
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .prev-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: var(--text);
+            margin-bottom: 5px;
+        }
+
+        .prev-desc {
+            font-size: 12px;
+            color: var(--text2);
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+
+        .prev-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+
+        .prev-tag {
+            font-size: 10px;
+            padding: 2px 7px;
+            border: 1px solid var(--border2);
+            border-radius: 20px;
+            color: var(--text3);
+        }
+
+        .prev-meta {
+            margin: 0 16px 16px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            overflow: hidden;
+        }
+
+        .prev-meta-section {
+            padding: 12px 14px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .prev-meta-section:last-child {
+            border-bottom: none;
+        }
+
+        .prev-meta-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: .1em;
+            color: var(--text3);
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .prev-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 9px;
+            border: 1px solid var(--border2);
+            border-radius: var(--r);
+            font-size: 11px;
+            color: var(--text2);
+            margin: 0 4px 4px 0;
+        }
+
+        .prev-author {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 7px;
+        }
+
+        .prev-author:last-child {
+            margin-bottom: 0;
+        }
+
+        .prev-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: var(--accent-glow);
+            border: 1px solid var(--accent-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+            color: #a5b4fc;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .prev-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .prev-author-name {
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text);
+        }
+
+        .prev-author-role {
+            font-size: 11px;
+            color: var(--text3);
+        }
+
+        /* ── Output ── */
+        .output-wrap {
+            padding: 16px;
+        }
+
+        .output-code {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            padding: 14px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            line-height: 1.75;
+            color: var(--text2);
+            white-space: pre;
+            overflow-x: auto;
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+            tab-size: 2;
+        }
+
+        .output-code::-webkit-scrollbar {
+            width: 3px;
+            height: 3px;
+        }
+
+        .output-code::-webkit-scrollbar-thumb {
+            background: var(--border2);
+            border-radius: 2px;
+        }
+
+        /* Syntax highlight tokens */
+        .t-key {
+            color: #a5b4fc;
+        }
+
+        .t-str {
+            color: #86efac;
+        }
+
+        .t-tpl {
+            color: #fde68a;
+        }
+
+        .t-punc {
+            color: var(--text3);
+        }
+
+        /* ── Shortcuts hint ── */
+        .hint-bar {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            background: var(--bg3);
+            border: 1px solid var(--border);
+            border-radius: var(--r);
+            margin-top: -4px;
+            margin-bottom: 16px;
+        }
+
+        .hint-label {
+            font-size: 10px;
+            color: var(--text3);
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            font-weight: 600;
+        }
+
+        .hint-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .kbd {
+            display: inline-block;
+            padding: 1px 6px;
+            font-size: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            background: var(--bg4);
+            border: 1px solid var(--border2);
+            border-radius: 4px;
+            color: var(--text2);
+        }
+
+        .hint-desc {
+            font-size: 10px;
+            color: var(--text3);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="layout">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="logo">
+                <div class="logo-dot"></div>
+                Project Generator
+            </div>
+            <span style="font-size:11px;color:var(--text3);margin-left:4px">for ProjectData.ts</span>
+            <div class="topbar-sep"></div>
+            <span class="copy-success" id="copy-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                    <polyline points="20 6 9 17 4 12" />
+                </svg>
+                Copied!
+            </span>
+            <button class="top-btn" id="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">☀️</span>
+                <span id="theme-text">Light</span>
+            </button>
+            <button class="top-btn" onclick="resetForm()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="1 4 1 10 7 10" />
+                    <path d="M3.51 15a9 9 0 1 0 .49-3.5" />
+                </svg>
+                Reset
+            </button>
+            <button class="top-btn primary" onclick="copyOutput()">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="9" y="9" width="13" height="13" rx="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                Copy TypeScript
+            </button>
+        </header>
+
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="nav-group">
+                <div class="nav-label">Sections</div>
+                <div class="nav-item active" onclick="scrollTo('s-basic')">
+                    <span class="nav-icon">◈</span> Basic Info
+                </div>
+                <div class="nav-item" onclick="scrollTo('s-study')">
+                    <span class="nav-icon">◈</span> Case Study
+                </div>
+                <div class="nav-item" onclick="scrollTo('s-links')">
+                    <span class="nav-icon">◈</span> Links
+                </div>
+                <div class="nav-item" onclick="scrollTo('s-authors')">
+                    <span class="nav-icon">◈</span> Authors
+                </div>
+            </div>
+
+            <div class="nav-group">
+                <div class="nav-label">Markdown</div>
+                <div class="nav-item"
+                    style="cursor:default;opacity:.6;font-size:11px;flex-direction:column;align-items:flex-start;gap:3px">
+                    <div><span class="kbd" style="font-size:9px">Ctrl+B</span> Bold</div>
+                    <div><span class="kbd" style="font-size:9px">Ctrl+I</span> Italic</div>
+                    <div><span class="kbd" style="font-size:9px">Ctrl+K</span> Link</div>
+                    <div><span class="kbd" style="font-size:9px">Ctrl+`</span> Code</div>
+                    <div><span class="kbd" style="font-size:9px">Ctrl+Q</span> Quote</div>
+                    <div><span class="kbd" style="font-size:9px">Tab</span> Indent</div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main -->
+        <main class="main" id="main-scroll">
+            <!-- Basic Info -->
+            <div class="section" id="s-basic">
+                <div class="section-head">
+                    <span class="section-title">Basic Info</span>
+                    <div class="section-line"></div>
+                </div>
+                <div class="row2">
+                    <div class="field">
+                        <label>Title</label>
+                        <input type="text" id="f-title" placeholder="Brand Identity System" oninput="liveUpdate()">
+                    </div>
+                    <div class="field">
+                        <label>Category</label>
+                        <select id="f-category" onchange="liveUpdate()">
+                            <option>Branding</option>
+                            <option>UI/UX Design</option>
+                            <option>Product Design</option>
+                            <option>App Design</option>
+                            <option>Web Design</option>
+                            <option>Digital Publishing</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Description</label>
+                    <input type="text" id="f-desc" placeholder="A short description of the project"
+                        oninput="liveUpdate()">
+                </div>
+                <div class="row2">
+                    <div class="field">
+                        <label>Thumbnail URL</label>
+                        <input type="text" id="f-thumb" placeholder="https://images.unsplash.com/..."
+                            oninput="liveUpdate()">
+                    </div>
+                    <div class="field">
+                        <label>Image (emoji)</label>
+                        <input type="text" id="f-image" placeholder="🎨" oninput="liveUpdate()">
+                    </div>
+                </div>
+                <div class="field">
+                    <label>Tags</label>
+                    <div class="tag-input-row">
+                        <input type="text" id="f-tag-input" placeholder="Type a tag and press Enter…"
+                            onkeydown="tagKey(event)">
+                        <button class="tag-add-btn" onclick="addTag()">+ Add</button>
+                    </div>
+                    <div class="tags-row" id="tags-list"></div>
+                </div>
+            </div>
+
+            <!-- Case Study -->
+            <div class="section" id="s-study">
+                <div class="section-head">
+                    <span class="section-title">Case Study</span>
+                    <div class="section-line"></div>
+                </div>
+
+                <div class="field">
+                    <label>Challenge</label>
+                    <div class="md-wrap">
+                        <div class="md-bar" id="tb-challenge"></div>
+                        <textarea id="f-challenge" oninput="liveUpdate()"
+                            placeholder="Describe the challenge the client faced..."></textarea>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Solution</label>
+                    <div class="md-wrap">
+                        <div class="md-bar" id="tb-solution"></div>
+                        <textarea id="f-solution" oninput="liveUpdate()"
+                            placeholder="Describe your approach and solution..."></textarea>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label>Result</label>
+                    <div class="md-wrap">
+                        <div class="md-bar" id="tb-result"></div>
+                        <textarea id="f-result" oninput="liveUpdate()"
+                            placeholder="Describe the outcome and metrics..."></textarea>
+                    </div>
+                </div>
+
+                <div class="hint-bar">
+                    <span class="hint-label">Shortcuts</span>
+                    <div class="hint-item"><span class="kbd">Ctrl+B</span><span class="hint-desc">Bold</span></div>
+                    <div class="hint-item"><span class="kbd">Ctrl+I</span><span class="hint-desc">Italic</span></div>
+                    <div class="hint-item"><span class="kbd">Ctrl+K</span><span class="hint-desc">Link</span></div>
+                    <div class="hint-item"><span class="kbd">Ctrl+`</span><span class="hint-desc">Code</span></div>
+                    <div class="hint-item"><span class="kbd">Ctrl+Q</span><span class="hint-desc">Quote</span></div>
+                    <div class="hint-item"><span class="kbd">Ctrl+T</span><span class="hint-desc">Table</span></div>
+                    <div class="hint-item"><span class="kbd">Tab</span><span class="hint-desc">Indent</span></div>
+                </div>
+            </div>
+
+            <!-- Links -->
+            <div class="section" id="s-links">
+                <div class="section-head">
+                    <span class="section-title">Links</span>
+                    <div class="section-line"></div>
+                </div>
+                <div class="list-header link-grid">
+                    <span class="col-label">Icon</span>
+                    <span class="col-label">Label</span>
+                    <span class="col-label">URL</span>
+                    <span></span>
+                </div>
+                <div id="links-list"></div>
+                <button class="add-row-btn" onclick="addLink()">+ Add link</button>
+            </div>
+
+            <!-- Authors -->
+            <div class="section" id="s-authors">
+                <div class="section-head">
+                    <span class="section-title">Authors</span>
+                    <div class="section-line"></div>
+                </div>
+                <div class="list-header author-grid">
+                    <span class="col-label">Name</span>
+                    <span class="col-label">Role</span>
+                    <span class="col-label">Avatar URL</span>
+                    <span class="col-label">Social URL</span>
+                    <span></span>
+                </div>
+                <div id="authors-list"></div>
+                <button class="add-row-btn" onclick="addAuthor()">+ Add author</button>
+            </div>
+        </main>
+
+        <!-- Right Panel -->
+        <aside class="right-panel">
+            <div class="right-tabs">
+                <button class="right-tab active" onclick="switchRight('preview',this)">Preview</button>
+                <button class="right-tab" onclick="switchRight('output',this)">Output</button>
+            </div>
+            <div class="right-content">
+                <!-- Preview -->
+                <div id="rp-preview">
+                    <div class="prev-card">
+                        <div class="prev-thumb" id="prev-thumb">
+                            <div class="prev-thumb-ph" id="prev-thumb-ph">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                                    <path d="m3 16 5-5 4 4 3-3 5 5" />
+                                    <circle cx="8.5" cy="8.5" r="1.5" />
+                                </svg>
+                                No thumbnail
+                            </div>
+                            <img id="prev-thumb-img" style="display:none" alt="">
+                        </div>
+                        <div class="prev-body">
+                            <div class="prev-cat" id="prev-cat">Category</div>
+                            <div class="prev-title" id="prev-title">Project title</div>
+                            <div class="prev-desc" id="prev-desc">Description appears here.</div>
+                            <div class="prev-tags" id="prev-tags"></div>
+                        </div>
+                    </div>
+                    <div class="prev-meta">
+                        <div class="prev-meta-section">
+                            <div class="prev-meta-label">Links</div>
+                            <div id="prev-links"><span style="font-size:11px;color:var(--text3)">No links</span></div>
+                        </div>
+                        <div class="prev-meta-section">
+                            <div class="prev-meta-label">Authors</div>
+                            <div id="prev-authors"><span style="font-size:11px;color:var(--text3)">No authors</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Output -->
+                <div id="rp-output" style="display:none">
+                    <div class="output-wrap">
+                        <div class="output-code" id="output-box">// Fill the form to generate TypeScript output</div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        const ICONS = ["github", "figma", "prototype", "live", "document", "video", "link", "eye", "play"];
+        const ICON_MAP = { github: "GitHub", figma: "Figma", prototype: "Prototype", live: "Live Site", document: "Docs", video: "Video", link: "Link", eye: "Preview", play: "Play" };
+        let tags = [], links = [], authors = [], rightTab = 'preview';
+
+        function g(id) { return document.getElementById(id); }
+        function val(id) { return g(id).value.trim(); }
+
+        function scrollTo(id) {
+            g(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            const map = { s: 'basic', 's-study': 'study', 's-links': 'links', 's-authors': 'authors' };
+        }
+
+        function switchRight(tab, el) {
+            rightTab = tab;
+            g('rp-preview').style.display = tab === 'preview' ? 'block' : 'none';
+            g('rp-output').style.display = tab === 'output' ? 'block' : 'none';
+            document.querySelectorAll('.right-tab').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            if (tab === 'output') renderOutput();
+            else renderPreview();
+        }
+
+        function liveUpdate() {
+            if (rightTab === 'preview') renderPreview();
+            else renderOutput();
+        }
+
+        /* Tags */
+        function tagKey(e) { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }
+        function addTag() {
+            const inp = g('f-tag-input'), v = inp.value.trim();
+            if (v && !tags.includes(v)) { tags.push(v); inp.value = ''; renderTags(); liveUpdate(); }
+        }
+        function removeTag(i) { tags.splice(i, 1); renderTags(); liveUpdate(); }
+        function renderTags() {
+            g('tags-list').innerHTML = tags.map((t, i) =>
+                `<span class="tag">${t}<button class="tag-rm" onclick="removeTag(${i})" aria-label="remove">×</button></span>`
+            ).join('');
+        }
+
+        /* Links */
+        function addLink() { links.push({ icon: 'github', label: '', url: '' }); renderLinks(); }
+        function removeLink(i) { links.splice(i, 1); renderLinks(); liveUpdate(); }
+        function renderLinks() {
+            g('links-list').innerHTML = links.map((l, i) => `
+    <div class="link-row">
+      <select onchange="links[${i}].icon=this.value;liveUpdate()">${ICONS.map(o => `<option value="${o}"${o === l.icon ? ' selected' : ''}>${ICON_MAP[o]}</option>`).join('')}</select>
+      <input type="text" placeholder="e.g. View in Figma" value="${esc(l.label)}" oninput="links[${i}].label=this.value;liveUpdate()">
+      <input type="text" placeholder="https://..." value="${esc(l.url)}" oninput="links[${i}].url=this.value;liveUpdate()">
+      <button class="rm-btn" onclick="removeLink(${i})" aria-label="remove">×</button>
+    </div>`).join('');
+        }
+
+        /* Authors */
+        function addAuthor() { authors.push({ name: '', role: '', avatar: '', socialUrl: '' }); renderAuthors(); }
+        function removeAuthor(i) { authors.splice(i, 1); renderAuthors(); liveUpdate(); }
+        function renderAuthors() {
+            g('authors-list').innerHTML = authors.map((a, i) => `
+    <div class="author-row">
+      <input type="text" placeholder="Full name" value="${esc(a.name)}" oninput="authors[${i}].name=this.value;liveUpdate()">
+      <input type="text" placeholder="Designer · Dev" value="${esc(a.role)}" oninput="authors[${i}].role=this.value;liveUpdate()">
+      <input type="text" placeholder="Avatar URL" value="${esc(a.avatar)}" oninput="authors[${i}].avatar=this.value;liveUpdate()">
+      <input type="text" placeholder="https://..." value="${esc(a.socialUrl)}" oninput="authors[${i}].socialUrl=this.value;liveUpdate()">
+      <button class="rm-btn" onclick="removeAuthor(${i})" aria-label="remove">×</button>
+    </div>`).join('');
+        }
+
+        function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;'); }
+
+        /* Markdown toolbars */
+        function buildToolbar(tbId, taId) {
+            const tb = g(tbId), ta = g(taId);
+            const btns = [
+                { t: 'B', title: 'Bold (Ctrl+B)', style: 'font-weight:700', fn: () => wrap(ta, '**', '**') },
+                { t: 'I', title: 'Italic (Ctrl+I)', style: 'font-style:italic', fn: () => wrap(ta, '*', '*') },
+                { t: '~~S~~', title: 'Strikethrough', fn: () => wrap(ta, '~~', '~~') },
+                { t: '`code`', title: 'Inline code (Ctrl+`)', fn: () => wrap(ta, '`', '`') },
+                'sep',
+                { t: 'H1', title: 'Heading 1', fn: () => linePrefix(ta, '# ') },
+                { t: 'H2', title: 'Heading 2', fn: () => linePrefix(ta, '## ') },
+                { t: 'H3', title: 'Heading 3', fn: () => linePrefix(ta, '### ') },
+                'sep',
+                { t: '• UL', title: 'Bullet list', fn: () => linePrefix(ta, '- ') },
+                { t: '1. OL', title: 'Numbered list', fn: () => linePrefix(ta, '1. ') },
+                { t: '> Quote', title: 'Blockquote (Ctrl+Q)', fn: () => linePrefix(ta, '> ') },
+                'sep',
+                { t: '[Link]', title: 'Insert link (Ctrl+K)', fn: () => insertLink(ta) },
+                { t: '![img]', title: 'Insert image', fn: () => insertImg(ta) },
+                { t: 'Table', title: 'Insert table (Ctrl+T)', fn: () => insertTable(ta) },
+                { t: '```block```', title: 'Code block', fn: () => insertCodeBlock(ta) },
+                { t: '---', title: 'Horizontal rule', fn: () => insertAt(ta, '\n\n---\n\n') },
+                'sep',
+                { t: '**bold** text', title: 'Bold text example', fn: () => insertAt(ta, '**bold text**') },
+            ];
+            tb.innerHTML = '';
+            btns.forEach(b => {
+                if (b === 'sep') { const s = document.createElement('div'); s.className = 'md-sep'; tb.appendChild(s); }
+                else {
+                    const btn = document.createElement('button');
+                    btn.className = 'md-btn'; btn.title = b.title; btn.textContent = b.t;
+                    if (b.style) btn.style.cssText = b.style;
+                    btn.onmousedown = e => { e.preventDefault(); b.fn(); };
+                    tb.appendChild(btn);
+                }
+            });
+            ta.addEventListener('keydown', e => shortcuts(e, ta));
+        }
+
+        function shortcuts(e, ta) {
+            const ctrl = e.ctrlKey || e.metaKey;
+            if (ctrl && e.key === 'b') { e.preventDefault(); wrap(ta, '**', '**'); }
+            else if (ctrl && e.key === 'i') { e.preventDefault(); wrap(ta, '*', '*'); }
+            else if (ctrl && e.key === 'k') { e.preventDefault(); insertLink(ta); }
+            else if (ctrl && e.key === '`') { e.preventDefault(); wrap(ta, '`', '`'); }
+            else if (ctrl && e.key === 'q') { e.preventDefault(); linePrefix(ta, '> '); }
+            else if (ctrl && e.key === 't') { e.preventDefault(); insertTable(ta); }
+            else if (e.key === 'Tab') { e.preventDefault(); insertAt(ta, '  '); }
+        }
+
+        function wrap(ta, b, a) {
+            const s = ta.selectionStart, e = ta.selectionEnd, v = ta.value;
+            const sel = v.slice(s, e) || 'text';
+            const rep = b + sel + a;
+            ta.value = v.slice(0, s) + rep + v.slice(e);
+            ta.selectionStart = s + b.length; ta.selectionEnd = s + b.length + sel.length;
+            ta.focus(); liveUpdate();
+        }
+        function linePrefix(ta, p) {
+            const s = ta.selectionStart, v = ta.value;
+            const ls = v.lastIndexOf('\n', s - 1) + 1;
+            ta.value = v.slice(0, ls) + p + v.slice(ls);
+            ta.selectionStart = ta.selectionEnd = s + p.length;
+            ta.focus(); liveUpdate();
+        }
+        function insertAt(ta, txt) {
+            const s = ta.selectionStart, v = ta.value;
+            ta.value = v.slice(0, s) + txt + v.slice(s);
+            ta.selectionStart = ta.selectionEnd = s + txt.length;
+            ta.focus(); liveUpdate();
+        }
+        function insertLink(ta) {
+            const s = ta.selectionStart, e = ta.selectionEnd, v = ta.value;
+            const sel = v.slice(s, e) || 'link text';
+            const rep = `[${sel}](https://)`;
+            ta.value = v.slice(0, s) + rep + v.slice(e);
+            ta.selectionStart = s + sel.length + 3; ta.selectionEnd = s + rep.length - 1;
+            ta.focus(); liveUpdate();
+        }
+        function insertImg(ta) { insertAt(ta, '![Alt text](https://image-url.com)'); }
+        function insertTable(ta) {
+            insertAt(ta, '\n| Metric | Result |\n|--------|--------|\n| Row 1  | Value  |\n| Row 2  | Value  |\n');
+        }
+        function insertCodeBlock(ta) {
+            const s = ta.selectionStart, v = ta.value;
+            const rep = '```\ncode here\n```';
+            ta.value = v.slice(0, s) + rep + v.slice(s);
+            ta.selectionStart = s + 4; ta.selectionEnd = s + 13;
+            ta.focus(); liveUpdate();
+        }
+
+        /* Preview */
+        function renderPreview() {
+            const thumb = val('f-thumb');
+            const img = g('prev-thumb-img'), ph = g('prev-thumb-ph');
+            if (thumb) { img.src = thumb; img.style.display = 'block'; ph.style.display = 'none'; }
+            else { img.style.display = 'none'; ph.style.display = 'flex'; }
+            g('prev-cat').textContent = val('f-category') || 'Category';
+            g('prev-title').textContent = val('f-title') || 'Project title';
+            g('prev-desc').textContent = val('f-desc') || 'Description appears here.';
+            g('prev-tags').innerHTML = tags.map(t => `<span class="prev-tag">${t}</span>`).join('');
+            g('prev-links').innerHTML = links.length
+                ? links.map(l => `<span class="prev-link">${ICON_MAP[l.icon]} · ${l.label || '—'}</span>`).join('')
+                : '<span style="font-size:11px;color:var(--text3)">No links</span>';
+            g('prev-authors').innerHTML = authors.length
+                ? authors.map(a => {
+                    const init = (a.name || '?').split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+                    const av = a.avatar ? `<img src="${a.avatar}" alt="${a.name}">` : init;
+                    return `<div class="prev-author"><div class="prev-avatar">${av}</div><div><div class="prev-author-name">${a.name || '—'}</div><div class="prev-author-role">${a.role || '—'}</div></div></div>`;
+                }).join('')
+                : '<span style="font-size:11px;color:var(--text3)">No authors</span>';
+        }
+
+        /* Output */
+        function buildObj() {
+            return {
+                title: val('f-title'),
+                category: val('f-category'),
+                description: val('f-desc'),
+                tags: [...tags],
+                thumbnail: val('f-thumb'),
+                image: val('f-image') || '🖼️',
+                challenge: g('f-challenge').value,
+                solution: g('f-solution').value,
+                result: g('f-result').value,
+                links: [...links],
+                authors: [...authors],
+            };
+        }
+
+        function toTS(o) {
+            const q = s => s.replace(/`/g, '\\`').replace(/\$\{/g, '\\${');
+            const tagsStr = o.tags.map(t => `"${t}"`).join(', ');
+            const linksStr = o.links.length
+                ? '\n' + o.links.map(l => `    { icon: "${l.icon}", label: "${l.label}", url: "${l.url}" },`).join('\n') + '\n  '
+                : '';
+            const authorsStr = o.authors.length
+                ? '\n' + o.authors.map(a => `    { name: "${a.name}", role: "${a.role}", avatar: "${a.avatar}", socialUrl: "${a.socialUrl}" },`).join('\n') + '\n  '
+                : '';
+            return `{
+  title: "${o.title}",
+  category: "${o.category}",
+  description: "${o.description}",
+  tags: [${tagsStr}],
+  thumbnail: "${o.thumbnail}",
+  image: "${o.image}",
+  challenge: \`
+${q(o.challenge).trim()}
+  \`,
+  solution: \`
+${q(o.solution).trim()}
+  \`,
+  result: \`
+${q(o.result).trim()}
+  \`,
+  links: [${linksStr}],
+  authors: [${authorsStr}],
+},`;
+        }
+
+        function renderOutput() {
+            g('output-box').textContent = toTS(buildObj());
+        }
+
+        function copyOutput() {
+            const text = toTS(buildObj());
+            navigator.clipboard.writeText(text).then(() => {
+                const b = g('copy-badge');
+                b.style.display = 'inline-flex';
+                setTimeout(() => b.style.display = 'none', 2500);
+            });
+        }
+
+        function resetForm() {
+            if (!confirm('Reset all fields?')) return;
+            ['f-title', 'f-desc', 'f-thumb', 'f-image', 'f-challenge', 'f-solution', 'f-result'].forEach(id => g(id).value = '');
+            g('f-category').selectedIndex = 0;
+            tags = []; links = []; authors = [];
+            renderTags(); renderLinks(); renderAuthors();
+            liveUpdate();
+        }
+
+        /* Theme Toggle */
+        function applyTheme(theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+
+            const icon = g('theme-icon');
+            const text = g('theme-text');
+
+            if (theme === 'light') {
+                icon.textContent = '🌙';
+                text.textContent = 'Dark';
+            } else {
+                icon.textContent = '☀️';
+                text.textContent = 'Light';
+            }
+
+            localStorage.setItem('theme', theme);
+        }
+
+        function toggleTheme() {
+            const current =
+                document.documentElement.getAttribute('data-theme') || 'dark';
+
+            applyTheme(current === 'dark' ? 'light' : 'dark');
+        }
+
+        /* Init Theme */
+        const savedTheme = localStorage.getItem('theme') || 'dark';
+        applyTheme(savedTheme);
+
+        /* Init */
+        buildToolbar('tb-challenge', 'f-challenge');
+        buildToolbar('tb-solution', 'f-solution');
+        buildToolbar('tb-result', 'f-result');
+        renderPreview();
+
+    </script>
+</body>
+
+</html>
