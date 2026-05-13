@@ -11,15 +11,27 @@
 </head>
 
 <body>
-    <div class="layout">
+    <div class="layout" id="app-layout">
 
         <!-- ── Topbar ── -->
         <header class="topbar">
+            <button class="collapse-btn" id="btn-collapse-left" onclick="togglePanel('left')" title="Toggle sidebar">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/>
+                </svg>
+            </button>
             <div class="logo">
                 <div class="logo-dot"></div>
                 Project Generator
             </div>
-            <span style="font-size:11px;color:var(--text3);margin-left:4px">for ProjectData.ts</span>
+            <span style="font-size:11px;color:var(--text3);margin-left:4px" id="topbar-subtitle">for ProjectData.ts</span>
+
+            <!-- Tab switcher -->
+            <div class="tab-switcher">
+                <button class="tab-switch-btn active" id="tab-btn-project" onclick="switchAppTab('project')">Project Data</button>
+                <button class="tab-switch-btn" id="tab-btn-cv" onclick="switchAppTab('cv')">CV Data</button>
+            </div>
+
             <div class="topbar-sep"></div>
             <span class="copy-success" id="copy-badge">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
@@ -27,54 +39,87 @@
                 </svg>
                 Copied!
             </span>
+            <div class="top-btn gh-settings-btn" id="gh-settings-btn" title="Edit config.js to set token & repo">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/>
+                </svg>
+                GitHub
+            </div>
             <button class="top-btn" onclick="toggleTheme()">
                 <span id="theme-icon">☀️</span>
                 <span id="theme-text">Light</span>
             </button>
-            <button class="top-btn" onclick="resetForm()">
+            <button class="top-btn" id="btn-reset" onclick="handleReset()">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <polyline points="1 4 1 10 7 10" />
                     <path d="M3.51 15a9 9 0 1 0 .49-3.5" />
                 </svg>
                 Reset
             </button>
-            <button class="top-btn primary" onclick="copyOutput()">
+            <button class="top-btn primary" id="btn-copy-main" onclick="handleCopyMain()">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <rect x="9" y="9" width="13" height="13" rx="2" />
                     <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
-                Copy TypeScript
+                <span id="btn-copy-label">Copy TypeScript</span>
+            </button>
+            <button class="collapse-btn" id="btn-collapse-right" onclick="togglePanel('right')" title="Toggle right panel">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M15 3v18"/>
+                </svg>
             </button>
         </header>
 
         <!-- ── Sidebar ── -->
-        <nav class="sidebar">
-            <div class="nav-group">
-                <div class="nav-label">Sections</div>
-                <div class="nav-item active" onclick="scrollToSection('s-basic')">
-                    <span class="nav-icon">◈</span> Basic Info
+        <nav class="sidebar" id="sidebar">
+            <!-- Project sidebar -->
+            <div id="sidebar-project">
+                <div class="nav-group">
+                    <div class="nav-label">Sections</div>
+                    <div class="nav-item active" onclick="scrollToSection('s-basic')">
+                        <span class="nav-icon">◈</span> Basic Info
+                    </div>
+                    <div class="nav-item" onclick="scrollToSection('s-study')">
+                        <span class="nav-icon">◈</span> Case Study
+                    </div>
+                    <div class="nav-item" onclick="scrollToSection('s-links')">
+                        <span class="nav-icon">◈</span> Links
+                    </div>
+                    <div class="nav-item" onclick="scrollToSection('s-authors')">
+                        <span class="nav-icon">◈</span> Authors
+                    </div>
                 </div>
-                <div class="nav-item" onclick="scrollToSection('s-study')">
-                    <span class="nav-icon">◈</span> Case Study
-                </div>
-                <div class="nav-item" onclick="scrollToSection('s-links')">
-                    <span class="nav-icon">◈</span> Links
-                </div>
-                <div class="nav-item" onclick="scrollToSection('s-authors')">
-                    <span class="nav-icon">◈</span> Authors
+                <div class="nav-group">
+                    <div class="nav-label">Markdown</div>
+                    <div class="nav-item"
+                        style="cursor:default;opacity:.6;font-size:11px;flex-direction:column;align-items:flex-start;gap:3px">
+                        <div><span class="kbd" style="font-size:9px">Ctrl+B</span> Bold</div>
+                        <div><span class="kbd" style="font-size:9px">Ctrl+I</span> Italic</div>
+                        <div><span class="kbd" style="font-size:9px">Ctrl+K</span> Link</div>
+                        <div><span class="kbd" style="font-size:9px">Ctrl+`</span> Code</div>
+                        <div><span class="kbd" style="font-size:9px">Ctrl+Q</span> Quote</div>
+                        <div><span class="kbd" style="font-size:9px">Tab</span> Indent</div>
+                    </div>
                 </div>
             </div>
-
-            <div class="nav-group">
-                <div class="nav-label">Markdown</div>
-                <div class="nav-item"
-                    style="cursor:default;opacity:.6;font-size:11px;flex-direction:column;align-items:flex-start;gap:3px">
-                    <div><span class="kbd" style="font-size:9px">Ctrl+B</span> Bold</div>
-                    <div><span class="kbd" style="font-size:9px">Ctrl+I</span> Italic</div>
-                    <div><span class="kbd" style="font-size:9px">Ctrl+K</span> Link</div>
-                    <div><span class="kbd" style="font-size:9px">Ctrl+`</span> Code</div>
-                    <div><span class="kbd" style="font-size:9px">Ctrl+Q</span> Quote</div>
-                    <div><span class="kbd" style="font-size:9px">Tab</span> Indent</div>
+            <!-- CV sidebar -->
+            <div id="sidebar-cv" style="display:none">
+                <div class="nav-group">
+                    <div class="nav-label">Sections</div>
+                    <div class="nav-item" onclick="scrollCvSection('s-cv-identity')"><span class="nav-icon">◈</span> Identity</div>
+                    <div class="nav-item" onclick="scrollCvSection('s-cv-experience')"><span class="nav-icon">◈</span> Experience</div>
+                    <div class="nav-item" onclick="scrollCvSection('s-cv-education')"><span class="nav-icon">◈</span> Education</div>
+                    <div class="nav-item" onclick="scrollCvSection('s-cv-awards')"><span class="nav-icon">◈</span> Awards</div>
+                    <div class="nav-item" onclick="scrollCvSection('s-cv-skills')"><span class="nav-icon">◈</span> Skills</div>
+                </div>
+                <div class="nav-group">
+                    <div class="nav-label">Copy Sections</div>
+                    <div class="nav-item" onclick="copyCvSection('all')"><span class="nav-icon">⎘</span> Full CV_DATA</div>
+                    <div class="nav-item" onclick="copyCvSection('identity')"><span class="nav-icon">⎘</span> Identity</div>
+                    <div class="nav-item" onclick="copyCvSection('experience')"><span class="nav-icon">⎘</span> Experience</div>
+                    <div class="nav-item" onclick="copyCvSection('education')"><span class="nav-icon">⎘</span> Education</div>
+                    <div class="nav-item" onclick="copyCvSection('awards')"><span class="nav-icon">⎘</span> Awards</div>
+                    <div class="nav-item" onclick="copyCvSection('skills')"><span class="nav-icon">⎘</span> Skills</div>
                 </div>
             </div>
         </nav>
@@ -82,160 +127,231 @@
         <!-- ── Main ── -->
         <main class="main" id="main-scroll">
 
-            <!-- Basic Info -->
-            <div class="section" id="s-basic">
-                <div class="section-head">
-                    <span class="section-title">Basic Info</span>
-                    <div class="section-line"></div>
-                </div>
-
-                <div class="row2">
-                    <div class="field">
-                        <label>Title</label>
-                        <input type="text" id="f-title" placeholder="Brand Identity System" oninput="liveUpdate()">
+            <!-- === PROJECT TAB === -->
+            <div id="tab-project">
+                <!-- Basic Info -->
+                <div class="section" id="s-basic">
+                    <div class="section-head">
+                        <span class="section-title">Basic Info</span>
+                        <div class="section-line"></div>
                     </div>
-                    <div class="field">
-                        <label>Category</label>
-                        <select id="f-category" onchange="liveUpdate()">
-                            <option>Branding</option>
-                            <option>UI/UX Design</option>
-                            <option>Product Design</option>
-                            <option>App Design</option>
-                            <option>Web Design</option>
-                            <option>Digital Publishing</option>
-                        </select>
-                    </div>
-                </div>
 
-                <!-- Rich Text Description -->
-                <div class="field">
-                    <label>Description</label>
-                    <div class="richtext-wrap">
-                        <div class="richtext-bar">
-                            <button class="rt-btn" title="Bold (Ctrl+B)" style="font-weight:700"
-                                onmousedown="event.preventDefault();rtCmd('bold')">B</button>
-                            <button class="rt-btn" title="Italic (Ctrl+I)" style="font-style:italic"
-                                onmousedown="event.preventDefault();rtCmd('italic')">I</button>
-                            <button class="rt-btn" title="Underline (Ctrl+U)" style="text-decoration:underline"
-                                onmousedown="event.preventDefault();rtCmd('underline')">U</button>
-                            <div class="rt-sep"></div>
-                            <button class="rt-btn" title="Insert link"
-                                onmousedown="event.preventDefault();rtLink()">[Link]</button>
-                            <button class="rt-btn" title="Remove link"
-                                onmousedown="event.preventDefault();rtUnlink()">✕Link</button>
-                            <div class="rt-sep"></div>
-                            <button class="rt-btn" title="Inline code"
-                                onmousedown="event.preventDefault();rtCmd('formatBlock','pre')">`code`</button>
-                            <div class="rt-sep"></div>
-                            <button class="rt-btn" title="Clear formatting"
-                                onmousedown="event.preventDefault();rtCmd('removeFormat')">✕ fmt</button>
+                    <div class="row2">
+                        <div class="field">
+                            <label>Title</label>
+                            <input type="text" id="f-title" placeholder="Brand Identity System" oninput="liveUpdate()">
                         </div>
-                        <div id="f-desc-editor"
-                             class="richtext-editor"
-                             contenteditable="true"
-                             data-placeholder="A short description of the project…"
-                             oninput="liveUpdate()"></div>
+                        <div class="field">
+                            <label>Category</label>
+                            <select id="f-category" onchange="liveUpdate()">
+                                <option>Branding</option>
+                                <option>UI/UX Design</option>
+                                <option>Product Design</option>
+                                <option>App Design</option>
+                                <option>Web Design</option>
+                                <option>Digital Publishing</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Description</label>
+                        <textarea id="f-desc" class="desc-textarea" placeholder="A short description of the project…" rows="2" oninput="autoGrow(this);liveUpdate()"></textarea>
+                    </div>
+
+                    <div class="field">
+                        <label>Thumbnail URL</label>
+                        <div class="drop-wrap" id="thumb-drop-wrap">
+                            <input type="text" id="f-thumb" placeholder="Paste URL or drag & drop image here…" oninput="liveUpdate()">
+                            <button class="drop-pick-btn" id="thumb-pick-btn" title="Pick image file">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                    <polyline points="17 8 12 3 7 8"/>
+                                    <line x1="12" y1="3" x2="12" y2="15"/>
+                                </svg>
+                            </button>
+                            <div class="drop-hint">Drop image to upload to GitHub</div>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Tags</label>
+                        <div class="tag-input-row">
+                            <input type="text" id="f-tag-input" placeholder="Type a tag and press Enter…" onkeydown="tagKey(event)">
+                            <button class="tag-add-btn" onclick="addTag()">+ Add</button>
+                        </div>
+                        <div class="tags-row" id="tags-list"></div>
                     </div>
                 </div>
 
-                <div class="field">
-                    <label>Thumbnail URL</label>
-                    <input type="text" id="f-thumb" placeholder="https://images.unsplash.com/..." oninput="liveUpdate()">
+                <!-- Case Study -->
+                <div class="section" id="s-study">
+                    <div class="section-head">
+                        <span class="section-title">Case Study</span>
+                        <div class="section-line"></div>
+                    </div>
+
+                    <div class="field">
+                        <label>Challenge</label>
+                        <div class="md-wrap" id="md-wrap-challenge">
+                            <div class="md-bar" id="tb-challenge"></div>
+                            <textarea id="f-challenge" oninput="liveUpdate()" placeholder="Describe the challenge the client faced..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Solution</label>
+                        <div class="md-wrap" id="md-wrap-solution">
+                            <div class="md-bar" id="tb-solution"></div>
+                            <textarea id="f-solution" oninput="liveUpdate()" placeholder="Describe your approach and solution..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Result</label>
+                        <div class="md-wrap" id="md-wrap-result">
+                            <div class="md-bar" id="tb-result"></div>
+                            <textarea id="f-result" oninput="liveUpdate()" placeholder="Describe the outcome and metrics..."></textarea>
+                        </div>
+                    </div>
+
+                    <div class="hint-bar">
+                        <span class="hint-label">Shortcuts</span>
+                        <div class="hint-item"><span class="kbd">Ctrl+B</span><span class="hint-desc">Bold</span></div>
+                        <div class="hint-item"><span class="kbd">Ctrl+I</span><span class="hint-desc">Italic</span></div>
+                        <div class="hint-item"><span class="kbd">Ctrl+K</span><span class="hint-desc">Link</span></div>
+                        <div class="hint-item"><span class="kbd">Ctrl+`</span><span class="hint-desc">Code</span></div>
+                        <div class="hint-item"><span class="kbd">Ctrl+Q</span><span class="hint-desc">Quote</span></div>
+                        <div class="hint-item"><span class="kbd">Ctrl+T</span><span class="hint-desc">Table</span></div>
+                        <div class="hint-item"><span class="kbd">Tab</span><span class="hint-desc">Indent</span></div>
+                    </div>
                 </div>
 
-                <div class="field">
-                    <label>Tags</label>
-                    <div class="tag-input-row">
-                        <input type="text" id="f-tag-input" placeholder="Type a tag and press Enter…" onkeydown="tagKey(event)">
-                        <button class="tag-add-btn" onclick="addTag()">+ Add</button>
+                <!-- Links -->
+                <div class="section" id="s-links">
+                    <div class="section-head">
+                        <span class="section-title">Links</span>
+                        <div class="section-line"></div>
                     </div>
-                    <div class="tags-row" id="tags-list"></div>
+                    <div class="list-header link-grid">
+                        <span class="col-label">Icon</span>
+                        <span class="col-label">Label</span>
+                        <span class="col-label">URL</span>
+                        <span></span>
+                    </div>
+                    <div id="links-list"></div>
+                    <button class="add-row-btn" onclick="addLink()">+ Add link</button>
+                </div>
+
+                <!-- Authors -->
+                <div class="section" id="s-authors">
+                    <div class="section-head">
+                        <span class="section-title">Authors</span>
+                        <div class="section-line"></div>
+                    </div>
+                    <div class="list-header author-grid">
+                        <span class="col-label">Name</span>
+                        <span class="col-label">Role</span>
+                        <span class="col-label">Avatar URL</span>
+                        <span class="col-label">Social URL</span>
+                        <span></span>
+                    </div>
+                    <div id="authors-list"></div>
+                    <button class="add-row-btn" onclick="addAuthor()">+ Add author</button>
                 </div>
             </div>
 
-            <!-- Case Study -->
-            <div class="section" id="s-study">
-                <div class="section-head">
-                    <span class="section-title">Case Study</span>
-                    <div class="section-line"></div>
-                </div>
+            <!-- === CV TAB === -->
+            <div id="tab-cv" style="display:none">
 
-                <div class="field">
-                    <label>Challenge</label>
-                    <div class="md-wrap">
-                        <div class="md-bar" id="tb-challenge"></div>
-                        <textarea id="f-challenge" oninput="liveUpdate()"
-                            placeholder="Describe the challenge the client faced..."></textarea>
+                <!-- Identity -->
+                <div class="section" id="s-cv-identity">
+                    <div class="section-head">
+                        <span class="section-title">Identity</span>
+                        <div class="section-line"></div>
+                        <button class="section-copy-btn" onclick="copyCvSection('identity')" title="Copy identity section">⎘ Copy</button>
+                    </div>
+                    <div class="row2">
+                        <div class="field">
+                            <label>Name</label>
+                            <input type="text" id="cv-name" placeholder="Anugerah Gari" oninput="cvLiveUpdate()">
+                        </div>
+                        <div class="field">
+                            <label>Role</label>
+                            <input type="text" id="cv-role" placeholder="UI/UX Designer & Frontend Developer" oninput="cvLiveUpdate()">
+                        </div>
+                    </div>
+                    <div class="row2">
+                        <div class="field">
+                            <label>Location</label>
+                            <input type="text" id="cv-location" placeholder="Jakarta, Indonesia" oninput="cvLiveUpdate()">
+                        </div>
+                        <div class="field">
+                            <label>Email</label>
+                            <input type="text" id="cv-email" placeholder="hello@example.com" oninput="cvLiveUpdate()">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Website</label>
+                        <input type="text" id="cv-website" placeholder="yoursite.com" oninput="cvLiveUpdate()">
+                    </div>
+                    <div class="field">
+                        <label>Profile / Bio</label>
+                        <textarea id="cv-profile" class="desc-textarea" rows="3" placeholder="UI/UX Designer and Frontend Developer with 4+ years of experience…" oninput="autoGrow(this);cvLiveUpdate()"></textarea>
                     </div>
                 </div>
 
-                <div class="field">
-                    <label>Solution</label>
-                    <div class="md-wrap">
-                        <div class="md-bar" id="tb-solution"></div>
-                        <textarea id="f-solution" oninput="liveUpdate()"
-                            placeholder="Describe your approach and solution..."></textarea>
+                <!-- Experience -->
+                <div class="section" id="s-cv-experience">
+                    <div class="section-head">
+                        <span class="section-title">Experience</span>
+                        <div class="section-line"></div>
+                        <button class="section-copy-btn" onclick="copyCvSection('experience')" title="Copy experience section">⎘ Copy</button>
+                    </div>
+                    <div id="cv-experience-list"></div>
+                    <button class="add-row-btn" onclick="addCvExperience()">+ Add experience</button>
+                </div>
+
+                <!-- Education -->
+                <div class="section" id="s-cv-education">
+                    <div class="section-head">
+                        <span class="section-title">Education</span>
+                        <div class="section-line"></div>
+                        <button class="section-copy-btn" onclick="copyCvSection('education')" title="Copy education section">⎘ Copy</button>
+                    </div>
+                    <div id="cv-education-list"></div>
+                    <button class="add-row-btn" onclick="addCvEducation()">+ Add education</button>
+                </div>
+
+                <!-- Awards -->
+                <div class="section" id="s-cv-awards">
+                    <div class="section-head">
+                        <span class="section-title">Awards</span>
+                        <div class="section-line"></div>
+                        <button class="section-copy-btn" onclick="copyCvSection('awards')" title="Copy awards section">⎘ Copy</button>
+                    </div>
+                    <div id="cv-awards-list"></div>
+                    <button class="add-row-btn" onclick="addCvAward()">+ Add award</button>
+                </div>
+
+                <!-- Skills -->
+                <div class="section" id="s-cv-skills">
+                    <div class="section-head">
+                        <span class="section-title">Skills</span>
+                        <div class="section-line"></div>
+                        <button class="section-copy-btn" onclick="copyCvSection('skills')" title="Copy skills section">⎘ Copy</button>
+                    </div>
+                    <div class="field">
+                        <label>Skills (one per line or comma-separated)</label>
+                        <textarea id="cv-skills" class="desc-textarea" rows="4" placeholder="Figma, Adobe XD&#10;React, TypeScript&#10;Design Systems" oninput="autoGrow(this);cvLiveUpdate()"></textarea>
                     </div>
                 </div>
 
-                <div class="field">
-                    <label>Result</label>
-                    <div class="md-wrap">
-                        <div class="md-bar" id="tb-result"></div>
-                        <textarea id="f-result" oninput="liveUpdate()"
-                            placeholder="Describe the outcome and metrics..."></textarea>
-                    </div>
-                </div>
-
-                <div class="hint-bar">
-                    <span class="hint-label">Shortcuts</span>
-                    <div class="hint-item"><span class="kbd">Ctrl+B</span><span class="hint-desc">Bold</span></div>
-                    <div class="hint-item"><span class="kbd">Ctrl+I</span><span class="hint-desc">Italic</span></div>
-                    <div class="hint-item"><span class="kbd">Ctrl+K</span><span class="hint-desc">Link</span></div>
-                    <div class="hint-item"><span class="kbd">Ctrl+`</span><span class="hint-desc">Code</span></div>
-                    <div class="hint-item"><span class="kbd">Ctrl+Q</span><span class="hint-desc">Quote</span></div>
-                    <div class="hint-item"><span class="kbd">Ctrl+T</span><span class="hint-desc">Table</span></div>
-                    <div class="hint-item"><span class="kbd">Tab</span><span class="hint-desc">Indent</span></div>
-                </div>
             </div>
-
-            <!-- Links -->
-            <div class="section" id="s-links">
-                <div class="section-head">
-                    <span class="section-title">Links</span>
-                    <div class="section-line"></div>
-                </div>
-                <div class="list-header link-grid">
-                    <span class="col-label">Icon</span>
-                    <span class="col-label">Label</span>
-                    <span class="col-label">URL</span>
-                    <span></span>
-                </div>
-                <div id="links-list"></div>
-                <button class="add-row-btn" onclick="addLink()">+ Add link</button>
-            </div>
-
-            <!-- Authors -->
-            <div class="section" id="s-authors">
-                <div class="section-head">
-                    <span class="section-title">Authors</span>
-                    <div class="section-line"></div>
-                </div>
-                <div class="list-header author-grid">
-                    <span class="col-label">Name</span>
-                    <span class="col-label">Role</span>
-                    <span class="col-label">Avatar URL</span>
-                    <span class="col-label">Social URL</span>
-                    <span></span>
-                </div>
-                <div id="authors-list"></div>
-                <button class="add-row-btn" onclick="addAuthor()">+ Add author</button>
-            </div>
-
         </main>
 
         <!-- ── Right Panel ── -->
-        <aside class="right-panel">
+        <aside class="right-panel" id="right-panel">
             <div class="right-tabs">
                 <button class="right-tab active" onclick="switchRight('preview',this)">Preview</button>
                 <button class="right-tab" onclick="switchRight('output',this)">Output</button>
@@ -244,33 +360,73 @@
 
                 <!-- Preview -->
                 <div id="rp-preview">
-                    <div class="prev-card">
-                        <div class="prev-thumb">
-                            <div class="prev-thumb-ph" id="prev-thumb-ph">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                                    <path d="m3 16 5-5 4 4 3-3 5 5" />
-                                    <circle cx="8.5" cy="8.5" r="1.5" />
-                                </svg>
-                                No thumbnail
+                    <!-- Project preview -->
+                    <div id="rp-preview-project">
+                        <div class="prev-card">
+                            <div class="prev-thumb">
+                                <div class="prev-thumb-ph" id="prev-thumb-ph">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                                        <path d="m3 16 5-5 4 4 3-3 5 5" />
+                                        <circle cx="8.5" cy="8.5" r="1.5" />
+                                    </svg>
+                                    No thumbnail
+                                </div>
+                                <img id="prev-thumb-img" style="display:none" alt="">
                             </div>
-                            <img id="prev-thumb-img" style="display:none" alt="">
+                            <div class="prev-body">
+                                <div class="prev-cat" id="prev-cat">Category</div>
+                                <div class="prev-title" id="prev-title">Project title</div>
+                                <div class="prev-desc" id="prev-desc">Description appears here.</div>
+                                <div class="prev-tags" id="prev-tags"></div>
+                            </div>
                         </div>
-                        <div class="prev-body">
-                            <div class="prev-cat" id="prev-cat">Category</div>
-                            <div class="prev-title" id="prev-title">Project title</div>
-                            <div class="prev-desc" id="prev-desc">Description appears here.</div>
-                            <div class="prev-tags" id="prev-tags"></div>
+                        <div class="prev-meta">
+                            <div class="prev-meta-section">
+                                <div class="prev-meta-label">Links</div>
+                                <div id="prev-links"><span style="font-size:11px;color:var(--text3)">No links</span></div>
+                            </div>
+                            <div class="prev-meta-section">
+                                <div class="prev-meta-label">Authors</div>
+                                <div id="prev-authors"><span style="font-size:11px;color:var(--text3)">No authors</span></div>
+                            </div>
                         </div>
                     </div>
-                    <div class="prev-meta">
-                        <div class="prev-meta-section">
-                            <div class="prev-meta-label">Links</div>
-                            <div id="prev-links"><span style="font-size:11px;color:var(--text3)">No links</span></div>
-                        </div>
-                        <div class="prev-meta-section">
-                            <div class="prev-meta-label">Authors</div>
-                            <div id="prev-authors"><span style="font-size:11px;color:var(--text3)">No authors</span></div>
+
+                    <!-- CV preview -->
+                    <div id="rp-preview-cv" style="display:none">
+                        <div class="cv-prev-wrap">
+                            <div class="cv-prev-header">
+                                <div class="cv-prev-name" id="cvp-name">—</div>
+                                <div class="cv-prev-role" id="cvp-role">—</div>
+                                <div class="cv-prev-meta">
+                                    <span id="cvp-location">—</span>
+                                    <span class="cvp-dot">·</span>
+                                    <span id="cvp-email">—</span>
+                                    <span class="cvp-dot">·</span>
+                                    <span id="cvp-website">—</span>
+                                </div>
+                            </div>
+                            <div class="cv-prev-section">
+                                <div class="cv-prev-section-label">Profile</div>
+                                <div class="cv-prev-profile" id="cvp-profile">—</div>
+                            </div>
+                            <div class="cv-prev-section">
+                                <div class="cv-prev-section-label">Experience <span class="cv-prev-count" id="cvp-exp-count">0</span></div>
+                                <div id="cvp-exp-list" class="cv-prev-list"></div>
+                            </div>
+                            <div class="cv-prev-section">
+                                <div class="cv-prev-section-label">Education <span class="cv-prev-count" id="cvp-edu-count">0</span></div>
+                                <div id="cvp-edu-list" class="cv-prev-list"></div>
+                            </div>
+                            <div class="cv-prev-section">
+                                <div class="cv-prev-section-label">Awards <span class="cv-prev-count" id="cvp-awd-count">0</span></div>
+                                <div id="cvp-awd-list" class="cv-prev-list"></div>
+                            </div>
+                            <div class="cv-prev-section">
+                                <div class="cv-prev-section-label">Skills</div>
+                                <div id="cvp-skills" class="cv-prev-tags"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -287,7 +443,12 @@
 
     </div>
 
+    <!-- ── Toast ── -->
+    <div class="gh-toast" id="gh-toast"></div>
+
     <script src="app.js"></script>
+    <script src="github-upload.js"></script>
+    <script src="cv-app.js"></script>
 </body>
 
 </html>

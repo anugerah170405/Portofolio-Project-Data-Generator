@@ -42,32 +42,23 @@ function liveUpdate() {
     else renderOutput();
 }
 
-/* ── Rich Text Description ── */
-function rtCmd(cmd, value = null) {
-    document.execCommand(cmd, false, value);
-    g('f-desc-editor').focus();
-    liveUpdate();
+/* ── Description ── */
+function autoGrow(el) {
+    el.style.height = 'auto';
+    el.style.height = el.scrollHeight + 'px';
 }
 
-function rtLink() {
-    const url = prompt('Enter URL:', 'https://');
-    if (url) rtCmd('createLink', url);
-}
-
-function rtUnlink() {
-    rtCmd('unlink');
-}
-
-function getDescHtml() {
-    return g('f-desc-editor').innerHTML.trim();
-}
-
-function getDescPlainText() {
-    return g('f-desc-editor').innerText.trim();
+function getDesc() {
+    return (g('f-desc').value || '').trim();
 }
 
 /* ── Tags ── */
-function tagKey(e) { if (e.key === 'Enter') { e.preventDefault(); addTag(); } }
+function tagKey(e) {
+    if (e.key === 'Enter' || e.key === ' ' || e.key === ',') {
+        e.preventDefault();
+        addTag();
+    }
+}
 
 function addTag() {
     const inp = g('f-tag-input'), v = inp.value.trim();
@@ -158,13 +149,28 @@ function renderAuthors() {
         oninput="authors[${i}].name=this.value;liveUpdate()">
       <input type="text" placeholder="Designer · Dev" value="${escAttr(a.role)}"
         oninput="authors[${i}].role=this.value;liveUpdate()">
-      <input type="text" placeholder="Avatar URL" value="${escAttr(a.avatar)}"
-        oninput="authors[${i}].avatar=this.value;liveUpdate()">
+      <div class="drop-wrap avatar-drop-wrap" id="avatar-drop-${i}">
+        <input type="text" placeholder="Avatar URL or drop image…" value="${escAttr(a.avatar)}"
+          oninput="authors[${i}].avatar=this.value;liveUpdate()">
+        <button class="drop-pick-btn" title="Browse image">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+          </svg>
+        </button>
+      </div>
       <input type="text" placeholder="https://..." value="${escAttr(a.socialUrl)}"
         oninput="authors[${i}].socialUrl=this.value;liveUpdate()">
       <button class="rm-btn" onclick="removeAuthor(${i})" aria-label="remove">×</button>
     </div>`).join('');
+
+    // Attach drop zones after DOM is updated
+    authors.forEach((_, i) => {
+        const cell = g(`avatar-drop-${i}`);
+        if (cell) initAvatarDrop(cell, i);
+    });
 }
+
 
 /* ── Markdown Toolbars (Case Study fields) ── */
 function buildToolbar(tbId, taId) {
@@ -188,6 +194,15 @@ function buildToolbar(tbId, taId) {
         { t: 'Table',      title: 'Insert table (Ctrl+T)',fn: () => insertTable(ta) },
         { t: '```block```',title: 'Code block',           fn: () => insertCodeBlock(ta) },
         { t: '---',        title: 'Horizontal rule',      fn: () => insertAt(ta, '\n\n---\n\n') },
+        'sep',
+        { t: '📎 Image', title: 'Browse & upload image', cls: 'md-img-upload-btn', fn: () => {
+            if (typeof pickFile === 'function') {
+                pickFile(file => {
+                    const wrap = ta.closest('.md-wrap');
+                    if (typeof handleMdImageUpload === 'function') handleMdImageUpload(file, wrap, ta);
+                });
+            }
+        }},
     ];
     tb.innerHTML = '';
     btns.forEach(b => {
@@ -195,7 +210,8 @@ function buildToolbar(tbId, taId) {
             const s = document.createElement('div'); s.className = 'md-sep'; tb.appendChild(s);
         } else {
             const btn = document.createElement('button');
-            btn.className = 'md-btn'; btn.title = b.title; btn.textContent = b.t;
+            btn.className = 'md-btn' + (b.cls ? ' ' + b.cls : '');
+            btn.title = b.title; btn.textContent = b.t;
             if (b.style) btn.style.cssText = b.style;
             btn.onmousedown = e => { e.preventDefault(); b.fn(); };
             tb.appendChild(btn);
@@ -307,9 +323,7 @@ function renderPreview() {
     g('prev-cat').textContent   = val('f-category') || 'Category';
     g('prev-title').textContent = val('f-title') || 'Project title';
 
-    // Rich text description: render innerHTML directly (already sanitised by browser)
-    const descHtml = getDescHtml();
-    g('prev-desc').innerHTML = descHtml || '<span style="color:var(--text3)">Description appears here.</span>';
+    g('prev-desc').textContent = getDesc() || 'Description appears here.';
 
     g('prev-tags').innerHTML = tags.map(t => `<span class="prev-tag">${escHtml(t)}</span>`).join('');
 
@@ -346,7 +360,7 @@ function buildObj() {
     return {
         title:       val('f-title'),
         category:    val('f-category'),
-        description: getDescHtml(),
+        description: getDesc(),
         tags:        [...tags],
         thumbnail,
         challenge:   g('f-challenge').value,
@@ -408,7 +422,7 @@ function resetForm() {
     if (!confirm('Reset all fields?')) return;
     ['f-title', 'f-thumb', 'f-challenge', 'f-solution', 'f-result'].forEach(id => g(id).value = '');
     g('f-category').selectedIndex = 0;
-    g('f-desc-editor').innerHTML = '';
+    g('f-desc').value = ''; autoGrow(g('f-desc'));
     tags = []; links = []; authors = [];
     renderTags(); renderLinks(); renderAuthors();
     liveUpdate();
@@ -434,3 +448,18 @@ buildToolbar('tb-challenge', 'f-challenge');
 buildToolbar('tb-solution', 'f-solution');
 buildToolbar('tb-result', 'f-result');
 renderPreview();
+// GitHub inits are handled by github-upload.js
+/* ── Responsive mobile: toggle via class ── */
+(function() {
+    function isMobile() { return window.innerWidth <= 900; }
+    const origToggle = window.togglePanel;
+    window.togglePanel = function(side) {
+        if (isMobile()) {
+            const layout = document.getElementById('app-layout');
+            if (side === 'left') layout.classList.toggle('left-open');
+            else layout.classList.toggle('right-open');
+        } else {
+            if (typeof origToggle === 'function') origToggle(side);
+        }
+    };
+})();
