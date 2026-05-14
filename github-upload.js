@@ -297,6 +297,7 @@ function insertMdImageAt(ta, alt, url) {
 
 function initAllMdDrops() {
     initMdDrop('md-wrap-challenge', 'f-challenge');
+    initMdDrop('md-wrap-process',   'f-process');
     initMdDrop('md-wrap-solution',  'f-solution');
     initMdDrop('md-wrap-result',    'f-result');
 }

@@ -364,6 +364,7 @@ function buildObj() {
         tags:        [...tags],
         thumbnail,
         challenge:   g('f-challenge').value,
+        process:     g('f-process').value,
         solution:    g('f-solution').value,
         result:      g('f-result').value,
         links:       links.map(l => ({ icon: l.icon, label: l.label, url: l.url })),
@@ -394,6 +395,9 @@ function toTS(o) {
   challenge: \`
 ${tplEsc(o.challenge).trim()}
   \`,
+  process: \`
+${tplEsc(o.process).trim()}
+  \`,
   solution: \`
 ${tplEsc(o.solution).trim()}
   \`,
@@ -420,7 +424,7 @@ function copyOutput() {
 
 function resetForm() {
     if (!confirm('Reset all fields?')) return;
-    ['f-title', 'f-thumb', 'f-challenge', 'f-solution', 'f-result'].forEach(id => g(id).value = '');
+    ['f-title', 'f-thumb', 'f-challenge', 'f-process', 'f-solution', 'f-result'].forEach(id => g(id).value = '');
     g('f-category').selectedIndex = 0;
     g('f-desc').value = ''; autoGrow(g('f-desc'));
     tags = []; links = []; authors = [];
@@ -445,8 +449,9 @@ function toggleTheme() {
 const savedTheme = localStorage.getItem('theme') || 'dark';
 applyTheme(savedTheme);
 buildToolbar('tb-challenge', 'f-challenge');
-buildToolbar('tb-solution', 'f-solution');
-buildToolbar('tb-result', 'f-result');
+buildToolbar('tb-process',   'f-process');
+buildToolbar('tb-solution',  'f-solution');
+buildToolbar('tb-result',    'f-result');
 renderPreview();
 // GitHub inits are handled by github-upload.js
 /* ── Responsive mobile: toggle via class ── */
